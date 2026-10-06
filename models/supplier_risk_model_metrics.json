@@ -1,0 +1,26 @@
+{
+  "n_sellers_total": 1756,
+  "n_train": 1317,
+  "n_test": 439,
+  "positive_rate_overall": 0.171,
+  "label_definition": "pct_late>0.15 OR avg_review_score<3.5 OR cancellation_rate>0.05 (PROXY, not observed ground truth)",
+  "baseline_majority_class": {
+    "accuracy": 0.829,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0
+  },
+  "xgboost": {
+    "accuracy": 0.608,
+    "precision": 0.21,
+    "recall": 0.467,
+    "f1": 0.289,
+    "roc_auc": 0.599
+  },
+  "features_used": [
+    "n_orders",
+    "avg_freight",
+    "avg_price",
+    "n_categories"
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "n_total_delivered_orders": 96470,
+  "n_train": 77176,
+  "n_test": 19294,
+  "train_period": [
+    "2016-09-15",
+    "2018-05-26"
+  ],
+  "test_period": [
+    "2018-05-26",
+    "2018-08-29"
+  ],
+  "positive_rate_late_overall": 0.068,
+  "baseline_majority_class": {
+    "accuracy": 0.965,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0
+  },
+  "xgboost": {
+    "accuracy": 0.891,
+    "precision": 0.084,
+    "recall": 0.215,
+    "f1": 0.121,
+    "roc_auc": 0.7
+  },
+  "n_features": 66,
+  "leakage_guard": "only pre-purchase/at-purchase-time features used; actual delivery date and delivery_delay_days are excluded from predictors"
+}

@@ -1,0 +1,26 @@
+{
+  "target": "delivery_delay_days, conditional on the order being late (delivery_delay_days > 0)",
+  "n_late_orders_total": 6534,
+  "n_train": 5860,
+  "n_test": 674,
+  "train_period": [
+    "2016-09-15",
+    "2018-05-25"
+  ],
+  "test_period": [
+    "2018-05-26",
+    "2018-08-24"
+  ],
+  "baseline_train_mean": {
+    "MAE": 7.811,
+    "RMSE": 9.796,
+    "predicted_constant_days": 11.08
+  },
+  "xgboost_conditional_delay": {
+    "MAE": 5.931,
+    "RMSE": 8.897
+  },
+  "observed_avg_delay_given_late_train_period_days": 11.08,
+  "leakage_guard": "identical feature set to the delivery-lateness classifier; delivery_delay_days and is_late are used only as the label / row filter, never as predictors",
+  "not_a_causal_claim": "this model estimates historical association between pre-purchase order attributes and delay magnitude GIVEN lateness; it does not estimate how any intervention would change that magnitude"
+}

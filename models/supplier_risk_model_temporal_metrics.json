@@ -1,0 +1,40 @@
+{
+  "model": "Model B - time-aware (history window -> future window)",
+  "n_sellers_total": 752,
+  "n_train": 564,
+  "n_test": 188,
+  "positive_rate_future_high_risk": 0.12,
+  "label_definition": "seller_high_risk_future: pct_late_future>0.15 OR avg_review_future<3.5 OR cancellation_rate_future>0.05, computed ONLY from orders on/after the cutoff date (PROXY target, not an observed ground-truth failure label)",
+  "features_used": [
+    "n_orders_hist",
+    "avg_review_score_hist",
+    "pct_late_hist",
+    "avg_delay_days_hist",
+    "avg_freight_hist",
+    "avg_price_hist",
+    "n_categories_hist",
+    "cancellation_rate_hist"
+  ],
+  "feature_window": "orders strictly BEFORE the cutoff date only",
+  "label_window": "orders on/after the cutoff date only (no overlap with feature window)",
+  "baseline_majority_class": {
+    "accuracy": 0.883,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0
+  },
+  "xgboost_time_aware": {
+    "accuracy": 0.777,
+    "precision": 0.222,
+    "recall": 0.364,
+    "f1": 0.276,
+    "roc_auc": 0.598
+  },
+  "comparison_vs_model_A_legacy": {
+    "model_A_roc_auc": 0.599,
+    "model_A_recall": 0.467,
+    "model_B_roc_auc": 0.598,
+    "model_B_recall": 0.364,
+    "note": "Model A is same-period/non-temporal (features and label share the same order history). Model B is genuinely forward-looking (features strictly precede the label window). Model B is preferred on METHODOLOGICAL grounds (real prediction of the future) regardless of which has the higher raw metric."
+  }
+}
