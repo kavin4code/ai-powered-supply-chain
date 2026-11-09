@@ -4,7 +4,7 @@ Module 2 - Demand Forecasting
 Predicts daily order-count demand per product category.
 
 Approach:
-- Baseline: 7-day trailing moving average (naive).
+- Baseline: persistence / naive lag-1 (yesterday's category order count).
 - Model: XGBoost regressor on lag + calendar features.
 - Time-aware split: train on data before a cutoff date, test strictly after it
   (no shuffling / no random split -> avoids leakage across time).
