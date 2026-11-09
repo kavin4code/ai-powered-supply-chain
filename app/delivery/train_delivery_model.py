@@ -107,7 +107,8 @@ def train():
     }
 
     joblib.dump({"model": model, "feature_cols": feature_cols,
-                 "numeric_features": NUMERIC_FEATURES, "categorical_features": CATEGORICAL_FEATURES,\n                 "numeric_medians": numeric_medians},
+                 "numeric_features": NUMERIC_FEATURES, "categorical_features": CATEGORICAL_FEATURES,
+                 "numeric_medians": numeric_medians},
                 os.path.join(MODELS, "delivery_model.pkl"))
     with open(os.path.join(MODELS, "delivery_model_metrics.json"), "w") as f:
         json.dump(metrics, f, indent=2)
