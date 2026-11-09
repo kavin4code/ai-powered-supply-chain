@@ -1,8 +1,19 @@
 # Model Evaluation Report
 
-All numbers below were produced by actually running the training scripts in this
-repository against the real Olist dataset (see `models/*_metrics.json` for the raw
-machine-readable output). No numbers are fabricated.
+> **Camera-ready status:** The metric tables below are historical results from the
+> previous training implementation. A review identified that delivery-model numeric
+> imputation and one-hot encoding were fitted before the chronological split. The
+> delivery and conditional-delay training scripts have now been corrected to fit these
+> preprocessing steps on training rows only, and inference now uses the saved training
+> medians. **The saved model artifacts and metric JSON files have not yet been regenerated
+> on this corrected pipeline. Therefore, the historical delivery and delay metrics below
+> must not be presented as final post-fix results.** Rerun the documented training sequence,
+> replace the artifacts, and update this report from the newly generated JSON files before
+> submission. Demand and supplier metrics also need a reproducibility run and reconciliation
+> against their saved JSON files before final camera-ready use.
+
+The tables below are retained as a record of the previously reported baseline, not as
+verified results from the corrected delivery preprocessing.
 
 ---
 ## 1. Demand Forecasting (`app/forecasting/train_demand_model.py`)
