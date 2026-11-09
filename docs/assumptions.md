@@ -98,7 +98,7 @@ order's pre-purchase attributes and its eventual delay size, nothing more.
 
 ## 7. Recommendation decision score (Module 8)
 ```
-decision_score = 0.7 * overall_risk + 0.3 * relative_cost   (lower is better)
+decision_score = 0.9 * overall_risk + 0.1 * relative_cost   (lower is better)
 ```
 An **ASSUMED** weighting between risk-reduction and cost that is transparent and can be
 re-weighted; it is not a learned utility function.
