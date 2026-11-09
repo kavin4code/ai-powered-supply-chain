@@ -80,6 +80,9 @@ def predict_delivery_late_proba(order_row: dict):
     for f in cat_feats:
         row[f] = order_row.get(f, "unknown")
     df = pd.DataFrame([row])
+    medians = bundle.get("numeric_medians", {})
+    for f in num_feats:
+        df[f] = pd.to_numeric(df[f], errors="coerce").fillna(medians.get(f, 0))
     df_enc = pd.get_dummies(df, columns=cat_feats, drop_first=True)
     df_enc = df_enc.reindex(columns=cols, fill_value=0)
     return float(model.predict_proba(df_enc)[:, 1][0])
@@ -97,6 +100,9 @@ def predict_conditional_delay_days(order_row: dict):
     for f in cat_feats:
         row[f] = order_row.get(f, "unknown")
     df = pd.DataFrame([row])
+    medians = bundle.get("numeric_medians", {})
+    for f in num_feats:
+        df[f] = pd.to_numeric(df[f], errors="coerce").fillna(medians.get(f, 0))
     df_enc = pd.get_dummies(df, columns=cat_feats, drop_first=True)
     df_enc = df_enc.reindex(columns=cols, fill_value=0)
     return float(max(0.0, model.predict(df_enc)[0]))

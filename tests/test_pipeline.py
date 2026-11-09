@@ -47,6 +47,38 @@ def test_no_target_leakage_columns_used_in_delivery_training():
     assert "delivery_delay_days" not in tdm.NUMERIC_FEATURES
     assert "order_delivered_customer_date" not in tdm.NUMERIC_FEATURES
 
+def test_delivery_preprocessing_is_fit_after_chronological_split():
+    """Imputation statistics and one-hot vocabulary must be learned from train rows only."""
+    from app.delivery import train_delivery_model as tdm
+    import inspect
+    src = inspect.getsource(tdm.train)
+    split_at = src.index('train_mask = df["order_purchase_timestamp"] < cutoff')
+    median_at = src.index('numeric_medians = train_raw[NUMERIC_FEATURES].median()')
+    encode_at = src.index('X_train = pd.get_dummies(train_raw')
+    assert split_at < median_at < encode_at
+    assert '"numeric_medians": numeric_medians' in src
+
+
+def test_delay_preprocessing_is_fit_after_chronological_split():
+    from app.delivery import train_delay_magnitude_model as tdm
+    import inspect
+    src = inspect.getsource(tdm.train)
+    split_at = src.index('late_train_mask = late["order_purchase_timestamp"] < cutoff')
+    median_at = src.index('numeric_medians = train_raw[NUMERIC_FEATURES].median()')
+    encode_at = src.index('X_train = pd.get_dummies(train_raw')
+    assert split_at < median_at < encode_at
+    assert '"numeric_medians": numeric_medians' in src
+
+
+def test_delivery_predictors_apply_saved_training_medians():
+    from app.utils import predictors
+    import inspect
+    src = inspect.getsource(predictors.predict_delivery_late_proba)
+    delay_src = inspect.getsource(predictors.predict_conditional_delay_days)
+    assert 'bundle.get("numeric_medians", {})' in src
+    assert 'bundle.get("numeric_medians", {})' in delay_src
+
+
 
 # ---------------------------------------------------------------- models load & predict
 def test_models_exist():

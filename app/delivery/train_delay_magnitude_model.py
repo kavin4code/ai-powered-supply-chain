@@ -56,12 +56,6 @@ def train():
     df = df[df["order_status"] == "delivered"].dropna(subset=["is_late"]).copy()
     df["is_late"] = df["is_late"].astype(int)
 
-    for c in NUMERIC_FEATURES:
-        df[c] = pd.to_numeric(df[c], errors="coerce")
-        df[c] = df[c].fillna(df[c].median())
-    for c in CATEGORICAL_FEATURES:
-        df[c] = df[c].fillna("unknown").astype(str)
-
     # SAME chronological cutoff as the classifier (computed over ALL delivered orders,
     # not just late ones) so both models share one consistent train/test time boundary.
     df = df.sort_values("order_purchase_timestamp")
@@ -77,13 +71,26 @@ def train():
 
     # ---- regression model: E[delay_days | late, features], late orders only ----
     late = df[df["is_late"] == 1].copy()
-    enc = pd.get_dummies(late[NUMERIC_FEATURES + CATEGORICAL_FEATURES], columns=CATEGORICAL_FEATURES, drop_first=True)
-    feature_cols = enc.columns.tolist()
     late_train_mask = late["order_purchase_timestamp"] < cutoff
-
-    X_train, X_test = enc[late_train_mask.values], enc[~late_train_mask.values]
+    train_raw = late.loc[late_train_mask, NUMERIC_FEATURES + CATEGORICAL_FEATURES].copy()
+    test_raw = late.loc[~late_train_mask, NUMERIC_FEATURES + CATEGORICAL_FEATURES].copy()
     y_train = late.loc[late_train_mask, "delivery_delay_days"]
     y_test = late.loc[~late_train_mask, "delivery_delay_days"]
+
+    for c in NUMERIC_FEATURES:
+        train_raw[c] = pd.to_numeric(train_raw[c], errors="coerce")
+        test_raw[c] = pd.to_numeric(test_raw[c], errors="coerce")
+    numeric_medians = train_raw[NUMERIC_FEATURES].median().fillna(0).to_dict()
+    train_raw[NUMERIC_FEATURES] = train_raw[NUMERIC_FEATURES].fillna(numeric_medians)
+    test_raw[NUMERIC_FEATURES] = test_raw[NUMERIC_FEATURES].fillna(numeric_medians)
+    for c in CATEGORICAL_FEATURES:
+        train_raw[c] = train_raw[c].fillna("unknown").astype(str)
+        test_raw[c] = test_raw[c].fillna("unknown").astype(str)
+
+    X_train = pd.get_dummies(train_raw, columns=CATEGORICAL_FEATURES, drop_first=True)
+    feature_cols = X_train.columns.tolist()
+    X_test = pd.get_dummies(test_raw, columns=CATEGORICAL_FEATURES, drop_first=True)
+    X_test = X_test.reindex(columns=feature_cols, fill_value=0)
 
     # ---- baseline: predict the train-period mean delay for every late test order ----
     baseline_pred = np.full(len(y_test), y_train.mean())
@@ -120,6 +127,7 @@ def train():
 
     joblib.dump({"model": model, "feature_cols": feature_cols,
                  "numeric_features": NUMERIC_FEATURES, "categorical_features": CATEGORICAL_FEATURES,
+                 "numeric_medians": numeric_medians,
                  "observed_avg_delay_given_late_train_period_days": observed_avg_delay_given_late_train_days},
                 os.path.join(MODELS, "delay_magnitude_model.pkl"))
     with open(os.path.join(MODELS, "delay_magnitude_model_metrics.json"), "w") as f:

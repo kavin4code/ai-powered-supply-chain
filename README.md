@@ -35,13 +35,13 @@ See [`docs/architecture.md`](docs/architecture.md) for the full data-flow diagra
 | 9 | Explainable AI (SHAP) | `app/explainability/shap_utils.py` |
 | 10 | Streamlit dashboard (9 tabs, batch-scored visualizations) | `streamlit_app.py`, `app/utils/dashboard_data.py` |
 
-**Improvement pass (this revision):** added the time-aware supplier-risk model (Model B),
+**Existing improvement pass:** added the time-aware supplier-risk model (Model B),
 exposed delay/shortage impact in the what-if engine, fixed a SHAP model-mismatch bug found
 during the upgrade, and rebuilt the dashboard's charts to use real, batch-scored model
 output instead of single illustrative numbers. See `docs/methodology.md` and
 `docs/model_evaluation.md` for the honest before/after comparison.
 
-**Methodological review pass (this revision):** replaced the what-if engine's simulated
+**Existing methodological review pass:** replaced the what-if engine's simulated
 `delivery_risk × 6.0` expected-delay mapping with a real, verified decomposition
 `E[delay] = P(late) × E[delay|late]`, backed by a new delay-magnitude regression model
 that beats a naive baseline by ~24% MAE on held-out data. See `docs/methodology.md` §
@@ -87,7 +87,16 @@ Then open the URL Streamlit prints (usually http://localhost:8501).
 6. **Recommendation** tab — see the recommended action and why.
 7. **Explainability** tab — see SHAP-based global/local explanations.
 
-## Evaluation results (from actually running the code — see `models/*_metrics.json`)
+## Evaluation results
+
+> **Pending camera-ready rerun:** The values below are historical results from the earlier
+> training implementation. Delivery and conditional-delay preprocessing has since been
+> corrected to fit imputers and category encoders on training data only. Until the model
+> training sequence above is rerun and the saved metric JSON files are regenerated, do not
+> cite these historical values as final corrected-pipeline results. See
+> [`docs/model_evaluation.md`](docs/model_evaluation.md).
+
+Historical values (pre-correction):
 | Model | Metric | Baseline | XGBoost |
 |---|---|---|---|
 | Demand forecasting | MAE | 1.866 | **1.580** |
