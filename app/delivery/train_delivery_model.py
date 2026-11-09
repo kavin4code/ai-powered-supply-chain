@@ -42,22 +42,29 @@ def train():
     df = df.dropna(subset=["is_late"])
     df["is_late"] = df["is_late"].astype(int)
 
-    for c in NUMERIC_FEATURES:
-        df[c] = pd.to_numeric(df[c], errors="coerce")
-        df[c] = df[c].fillna(df[c].median())
-    for c in CATEGORICAL_FEATURES:
-        df[c] = df[c].fillna("unknown").astype(str)
-
-    df_enc = pd.get_dummies(df[NUMERIC_FEATURES + CATEGORICAL_FEATURES], columns=CATEGORICAL_FEATURES, drop_first=True)
-    feature_cols = df_enc.columns.tolist()
-
+    # Split chronologically BEFORE fitting any preprocessing. This prevents test-period
+    # medians or category vocabulary from influencing the training representation.
     df = df.sort_values("order_purchase_timestamp")
-    df_enc = df_enc.loc[df.index]
     cutoff = df["order_purchase_timestamp"].quantile(0.8)
     train_mask = df["order_purchase_timestamp"] < cutoff
-
-    X_train, X_test = df_enc[train_mask.values], df_enc[~train_mask.values]
+    train_raw = df.loc[train_mask, NUMERIC_FEATURES + CATEGORICAL_FEATURES].copy()
+    test_raw = df.loc[~train_mask, NUMERIC_FEATURES + CATEGORICAL_FEATURES].copy()
     y_train, y_test = df.loc[train_mask, "is_late"], df.loc[~train_mask, "is_late"]
+
+    for c in NUMERIC_FEATURES:
+        train_raw[c] = pd.to_numeric(train_raw[c], errors="coerce")
+        test_raw[c] = pd.to_numeric(test_raw[c], errors="coerce")
+    numeric_medians = train_raw[NUMERIC_FEATURES].median().fillna(0).to_dict()
+    train_raw[NUMERIC_FEATURES] = train_raw[NUMERIC_FEATURES].fillna(numeric_medians)
+    test_raw[NUMERIC_FEATURES] = test_raw[NUMERIC_FEATURES].fillna(numeric_medians)
+    for c in CATEGORICAL_FEATURES:
+        train_raw[c] = train_raw[c].fillna("unknown").astype(str)
+        test_raw[c] = test_raw[c].fillna("unknown").astype(str)
+
+    X_train = pd.get_dummies(train_raw, columns=CATEGORICAL_FEATURES, drop_first=True)
+    feature_cols = X_train.columns.tolist()
+    X_test = pd.get_dummies(test_raw, columns=CATEGORICAL_FEATURES, drop_first=True)
+    X_test = X_test.reindex(columns=feature_cols, fill_value=0)
 
     dummy = DummyClassifier(strategy="most_frequent")
     dummy.fit(X_train, y_train)
@@ -100,7 +107,7 @@ def train():
     }
 
     joblib.dump({"model": model, "feature_cols": feature_cols,
-                 "numeric_features": NUMERIC_FEATURES, "categorical_features": CATEGORICAL_FEATURES},
+                 "numeric_features": NUMERIC_FEATURES, "categorical_features": CATEGORICAL_FEATURES,\n                 "numeric_medians": numeric_medians},
                 os.path.join(MODELS, "delivery_model.pkl"))
     with open(os.path.join(MODELS, "delivery_model_metrics.json"), "w") as f:
         json.dump(metrics, f, indent=2)
