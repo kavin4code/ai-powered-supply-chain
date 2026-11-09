@@ -87,7 +87,16 @@ Then open the URL Streamlit prints (usually http://localhost:8501).
 6. **Recommendation** tab — see the recommended action and why.
 7. **Explainability** tab — see SHAP-based global/local explanations.
 
-## Evaluation results\n\n> **Pending camera-ready rerun:** The values below are historical results from the earlier\n> training implementation. Delivery and conditional-delay preprocessing has since been\n> corrected to fit imputers and category encoders on training data only. Until the model\n> training sequence above is rerun and the saved metric JSON files are regenerated, do not\n> cite these historical values as final corrected-pipeline results. See\n> [`docs/model_evaluation.md`](docs/model_evaluation.md).\n\nHistorical values (pre-correction):
+## Evaluation results
+
+> **Pending camera-ready rerun:** The values below are historical results from the earlier
+> training implementation. Delivery and conditional-delay preprocessing has since been
+> corrected to fit imputers and category encoders on training data only. Until the model
+> training sequence above is rerun and the saved metric JSON files are regenerated, do not
+> cite these historical values as final corrected-pipeline results. See
+> [`docs/model_evaluation.md`](docs/model_evaluation.md).
+
+Historical values (pre-correction):
 | Model | Metric | Baseline | XGBoost |
 |---|---|---|---|
 | Demand forecasting | MAE | 1.866 | **1.580** |
