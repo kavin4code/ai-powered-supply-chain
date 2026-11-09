@@ -126,7 +126,8 @@ def train():
     }
 
     joblib.dump({"model": model, "feature_cols": feature_cols,
-                 "numeric_features": NUMERIC_FEATURES, "categorical_features": CATEGORICAL_FEATURES,\n                 "numeric_medians": numeric_medians,
+                 "numeric_features": NUMERIC_FEATURES, "categorical_features": CATEGORICAL_FEATURES,
+                 "numeric_medians": numeric_medians,
                  "observed_avg_delay_given_late_train_period_days": observed_avg_delay_given_late_train_days},
                 os.path.join(MODELS, "delay_magnitude_model.pkl"))
     with open(os.path.join(MODELS, "delay_magnitude_model_metrics.json"), "w") as f:
